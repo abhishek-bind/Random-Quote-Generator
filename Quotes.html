@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Quote Generator</title>
+    <link rel="icon" type="image/png" href="favi.png">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #5372F0; /* A nice blue background */
+            color: #333;
+        }
+
+        .container {
+            width: 650px;
+            background: #fff;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .container h1 {
+            font-size: 30px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #5372F0;
+        }
+
+        .quote-area {
+            margin-bottom: 25px;
+            padding: 20px;
+            border: 1px solid #eee;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+            min-height: 100px; /* Ensure some space even when loading */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .quote-area .quote-text {
+            font-size: 20px;
+            font-style: italic;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        .quote-area .quote-author {
+            font-size: 16px;
+            font-weight: 500;
+            color: #777;
+            margin-top: 15px;
+            text-align: right;
+            width: 100%;
+        }
+        .quote-author::before {
+            content: "— ";
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: space-between; /* Distribute space */
+            align-items: center;
+            margin-top: 20px;
+            gap: 10px; /* Add space between buttons */
+            flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
+        }
+
+        .features {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .features button, .new-quote-btn {
+            padding: 12px 18px;
+            border: none;
+            border-radius: 25px; /* Pill shape */
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 500;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            outline: none;
+        }
+
+        .features button {
+            background-color: #e0e0e0;
+            color: #5372F0;
+        }
+        .features button:hover {
+            background-color: #d0d0d0;
+            transform: translateY(-2px);
+        }
+        .features button:active {
+            transform: translateY(0px);
+        }
+
+        .new-quote-btn {
+            background-color: #5372F0;
+            color: #fff;
+            flex-grow: 1; /* Allow it to take more space if needed */
+            min-width: 150px; /* Ensure it's not too small */
+        }
+
+        .new-quote-btn:hover {
+            background-color: #405dba;
+            transform: translateY(-2px);
+        }
+        
+        footer {
+    width: 100vw;
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, #5372F0 0%, #405dba 100%);
+    color: #fff;
+    padding: 15px 0;
+    font-size: 17px;
+    font-weight: 600;
+    border-radius: 0;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.08);
+    letter-spacing: 1px;
+    text-align: center;
+    z-index: 100;
+}
+
+        .new-quote-btn:active {
+            transform: translateY(0px);
+        }
+        
+        .loading {
+            font-style: italic;
+            color: #aaa;
+        }
+
+        /* Simple Tooltip for Copy */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 100px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px 0;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%; /* Position the tooltip above the button */
+            left: 50%;
+            margin-left: -50px; /* Use half of the width (100/2 = 50), to center it */
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip .tooltiptext::after {
+            content: "";
+            position: absolute;
+            top: 100%; /* At the bottom of the tooltip */
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #555 transparent transparent transparent;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 700px) {
+            .container {
+                width: 90%;
+                padding: 20px;
+            }
+            .container h1 {
+                font-size: 26px;
+            }
+            .quote-area .quote-text {
+                font-size: 18px;
+            }
+            .quote-area .quote-author {
+                font-size: 14px;
+            }
+            .buttons {
+                flex-direction: column; /* Stack buttons vertically */
+            }
+            .features {
+                width: 100%;
+                justify-content: space-around; /* Distribute feature buttons */
+                margin-bottom: 15px;
+            }
+            .new-quote-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Random Quote Generator</h1>
+        <div class="quote-area">
+            <p class="quote-text loading">Loading quote...</p>
+            <p class="quote-author"></p>
+        </div>
+        <div class="buttons">
+            <div class="features">
+                <button id="speakBtn" title="Speak Quote">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-volume-up-fill" viewBox="0 0 16 16">
+                        <path d="M11.536 14.01A8.47 8.47 0 0 0 14.026 8a8.47 8.47 0 0 0-2.49-6.01l-.708.707A7.48 7.48 0 0 1 13.025 8c0 2.071-.84 3.946-2.197 5.303z"/>
+                        <path d="M10.121 12.596A6.48 6.48 0 0 0 12.025 8a6.48 6.48 0 0 0-1.904-4.596l-.707.707A5.48 5.48 0 0 1 11.025 8a5.48 5.48 0 0 1-1.61 3.89z"/>
+                        <path d="M8.707 11.182A4.5 4.5 0 0 0 10.025 8a4.5 4.5 0 0 0-1.318-3.182L8 5.525A3.5 3.5 0 0 1 9.025 8 3.5 3.5 0 0 1 8 10.475zM6.717 3.55A.5.5 0 0 1 7 4v8a.5.5 0 0 1-.812.39L3.825 10.5H1.5A.5.5 0 0 1 1 10V6a.5.5 0 0 1 .5-.5h2.325l2.363-1.89a.5.5 0 0 1 .529-.06"/>
+                    </svg>
+                </button>
+                <div class="tooltip">
+                    <button id="copyBtn" title="Copy Quote">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-copy" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/>
+                        </svg>
+                    </button>
+                    <span class="tooltiptext" id="copyTooltip">Copy to clipboard</span>
+                </div>
+                <button id="tweetBtn" title="Tweet Quote">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-twitter-x" viewBox="0 0 16 16">
+                        <path d="M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 .75h5.063l3.495 4.633L12.601.75Zm-.86 13.028h1.36L4.323 2.145H2.865z"/>
+                    </svg>
+                </button>
+            </div>
+            <button class="new-quote-btn" id="newQuoteBtn">New Quote</button>
+        </div>
+    </div>
+</div>
+<footer style="text-align:center; margin-top:20px; color:#fff;">
+    Made by Abhishek © 2025
+</footer>
+<script>
+    const quoteTextEl = document.querySelector(".quote-text");
+    const quoteAuthorEl = document.querySelector(".quote-author");
+    const newQuoteBtn = document.getElementById("newQuoteBtn");
+    const speakBtn = document.getElementById("speakBtn");
+    const copyBtn = document.getElementById("copyBtn");
+    const tweetBtn = document.getElementById("tweetBtn");
+    const copyTooltip = document.getElementById("copyTooltip");
+
+    let currentQuote = "";
+    let currentAuthor = "";
+
+    // Array of quotes (can be expanded or fetched from an API)
+    const localQuotes = [
+        { text: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
+        { text: "Strive not to be a success, but rather to be of value.", author: "Albert Einstein" },
+        { text: "The mind is everything. What you think you become.", author: "Buddha" },
+        { text: "Your time is limited, so don't waste it living someone else's life.", author: "Steve Jobs" },
+        { text: "The best way to predict the future is to create it.", author: "Peter Drucker" },
+        { text: "Life is 10% what happens to us and 90% how we react to it.", author: "Charles R. Swindoll" },
+        { text: "It does not matter how slowly you go as long as you do not stop.", author: "Confucius" },
+        { text: "The journey of a thousand miles begins with a single step.", author: "Lao Tzu" },
+        { text: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" },
+        { text: "To live is the rarest thing in the world. Most people exist, that is all.", author: "Oscar Wilde" },
+        { text: "Success is not final, failure is not fatal: It is the courage to continue that counts.", author: "Winston S. Churchill" },
+        { text: "What lies behind us and what lies before us are tiny matters compared to what lies within us.", author: "Ralph Waldo Emerson" },
+        { text: "The only limit to our realization of tomorrow will be our doubts of today.", author: "Franklin D. Roosevelt" },
+        { text: "Act as if what you do makes a difference. It does.", author: "William James" },
+        { text: "Success usually comes to those who are too busy to be looking for it.", author: "Henry David Thoreau" },
+        { text: "You miss 100% of the shots you don't take.", author: "Wayne Gretzky" },
+        { text: "The future belongs to those who believe in the beauty of their dreams.", author: "Eleanor Roosevelt" },
+        { text: "In the end, we will remember not the words of our enemies, but the silence of our friends.", author: "Martin Luther King Jr." },
+        { text: "It is never too late to be what you might have been.", author: "George Eliot" },
+        { text: "The best revenge is massive success.", author: "Frank Sinatra" },
+        { text: "Life is what happens when you're busy making other plans.", author: "John Lennon" },
+        { text: "The purpose of our lives is to be happy.", author: "Dalai Lama" },
+        { text: "Get busy living or get busy dying.", author: "Stephen King" },
+        { text: "You only live once, but if you do it right, once is enough.", author: "Mae West" },
+        { text: "To be yourself in a world that is constantly trying to make you something else is the greatest accomplishment.", author: "Ralph Waldo Emerson" },
+        { text: "The only impossible journey is the one you never begin.", author: "Tony Robbins" },
+        { text: "Dream big and dare to fail.", author: "Norman Vaughan" },
+        { text: "Everything you can imagine is real.", author: "Pablo Picasso" },
+        { text: "What we think, we become.", author: "Buddha" },
+        { text: "Do not wait to strike till the iron is hot, but make it hot by striking.", author: "William Butler Yeats" }
+    ];
+
+    async function getRandomQuote() {
+        quoteTextEl.classList.add("loading");
+        quoteTextEl.textContent = "Fetching new quote...";
+        quoteAuthorEl.textContent = "";
+
+        try {
+            // Using a free, open-source API: https://github.com/lukePeavey/quotable
+            const response = await fetch("https://api.quotable.io/random");
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            currentQuote = data.content;
+            currentAuthor = data.author || "Unknown"; // Handle null author
+            displayQuote(currentQuote, currentAuthor);
+
+        } catch (error) {
+            console.error("Failed to fetch quote from API, using local quote:", error);
+            // Fallback to local quotes if API fails
+            const randomIndex = Math.floor(Math.random() * localQuotes.length);
+            const quote = localQuotes[randomIndex];
+            currentQuote = quote.text;
+            currentAuthor = quote.author;
+            displayQuote(currentQuote, currentAuthor);
+        }
+    }
+
+    function displayQuote(quote, author) {
+        quoteTextEl.textContent = `“${quote}”`;
+        quoteAuthorEl.textContent = author;
+        quoteTextEl.classList.remove("loading");
+    }
+
+    // Event Listeners
+    newQuoteBtn.addEventListener("click", getRandomQuote);
+
+    speakBtn.addEventListener("click", () => {
+        if (currentQuote && 'speechSynthesis' in window) {
+            const utterance = new SpeechSynthesisUtterance(`${currentQuote} by ${currentAuthor}`);
+            // Optional: configure voice, rate, pitch
+            // utterance.voice = speechSynthesis.getVoices()[0]; // Example: first available voice
+            // utterance.rate = 0.9; // Speed
+            // utterance.pitch = 1; // Pitch
+            speechSynthesis.cancel(); // Cancel any previous speech
+            speechSynthesis.speak(utterance);
+        } else if (!('speechSynthesis' in window)) {
+            alert("Sorry, your browser does not support text-to-speech.");
+        } else if (!currentQuote) {
+            alert("No quote loaded to speak.");
+        }
+    });
+
+    copyBtn.addEventListener("click", () => {
+        if (currentQuote) {
+            const textToCopy = `“${currentQuote}” — ${currentAuthor}`;
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                copyTooltip.textContent = "Copied!";
+                setTimeout(() => {
+                    copyTooltip.textContent = "Copy to clipboard";
+                }, 1500); // Reset tooltip text after 1.5 seconds
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                copyTooltip.textContent = "Failed to copy";
+                 setTimeout(() => {
+                    copyTooltip.textContent = "Copy to clipboard";
+                }, 1500);
+            });
+        } else {
+            alert("No quote loaded to copy.");
+        }
+    });
+
+    tweetBtn.addEventListener("click", () => {
+        if (currentQuote) {
+            const textToTweet = `“${currentQuote}” — ${currentAuthor}`;
+            // Max length for tweet is 280. Truncate if necessary.
+            const maxLength = 280 - 20; // 20 for link and potential hashtags
+            let tweetText = textToTweet;
+            if (tweetText.length > maxLength) {
+                tweetText = tweetText.substring(0, maxLength - 3) + "...";
+            }
+            const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
+            window.open(twitterUrl, "_blank"); // Open in a new tab
+        } else {
+            alert("No quote loaded to tweet.");
+        }
+    });
+
+    // Load an initial quote when the page loads
+    document.addEventListener('DOMContentLoaded', getRandomQuote);
+    </script>
+
+</body>
+</html>
